@@ -1,0 +1,3 @@
+node_modules
+prometheus-config.yml
+promtail-config.yml

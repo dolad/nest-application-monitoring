@@ -1,0 +1,49 @@
+version: '3.9'
+networks:
+  monitoring:
+    driver: bridge
+
+services:
+  web:
+    build:
+      context: ./
+    volumes:
+      - logs-volume:/logs
+    # environment:
+    #   - name=value
+    # env_file:
+    #   - fileName
+    expose:
+      - 3002
+    ports:
+      - 3002:3002
+    networks:
+      - monitoring
+  
+  promtail:
+    image: grafana/promtail:2.5.0
+    # environment:
+    #   - name=value
+    volumes:
+      - logs-volume:/logs
+      - ./promtail-config.yml:/etc/promtail/config.yml
+    command: -config.file=/etc/promtail/config.yml #-config.expand-env=true
+    links:
+      - web
+  
+  prometheus:
+    image: prom/prometheus:v2.20.1
+    volumes:
+      - ./prometheus-config.yml:/etc/prometheus/config.yml
+      - prometheus_data:/prometheus/config/yml
+    ports:
+      - 9090:9090
+    expose:
+      - 9090
+    networks:
+      - monitoring
+
+
+volumes:
+  logs-volume:
+  prometheus_data:
